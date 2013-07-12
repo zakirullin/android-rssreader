@@ -116,7 +116,6 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
         setContentView(R.layout.activity_article_list);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title);
 
-
         this.listAdapter = new ListAdapter(this);
         ((ListView) findViewById(R.id.lvArticles)).setAdapter(listAdapter);
 
