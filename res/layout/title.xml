@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="57dip"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="5dip">
+
+    <ImageView
+            android:id="@+id/ivHeader"
+            android:src="@drawable/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    <include layout="@layout/vertical_separator">
+    </include>
+
+    <TextView
+            android:id="@+id/tvHeader"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/title_activity_article_list"
+            android:textSize="16dp"
+            android:textColor="#f2f2f2"/>
+
+    <include layout="@layout/vertical_separator">
+    </include>
+
+    <ImageView
+            android:id="@+id/ivUpdate"
+            android:src="@drawable/update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="refreshList"/>
+</LinearLayout>
