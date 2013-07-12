@@ -1,0 +1,10 @@
+.idea/
+out/
+gen/
+*.iml
+*.ipr
+*.iws
+*.class
+*.apk
+local.properties
+project.properties

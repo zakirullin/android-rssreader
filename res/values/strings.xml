@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Oren.ru</string>
+    <string name="action_settings">Settings</string>
+    <string name="btn_refresh_list">Обновить список</string>
+    <string name="btn_back">Назад</string>
+    <string name="title_activity_article_list">Новости Оренбурга</string>
+    <string name="title_activity_article_detail">Подробнее</string>
+    <string name="load_articles_message">Загрузка новостей...</string>
+    <string name="no_articles_message">Для обновления новостей нажмите кнопку \"Обновить\"</string>
+</resources>
