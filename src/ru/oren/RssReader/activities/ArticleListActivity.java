@@ -138,11 +138,9 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
         });
 
         DB.getInstance().init(getApplicationContext());
-
         DBFetcher dbFetcher = new DBFetcher();
         dbFetcher.addListener(this);
         dbFetcher.execute();
-
         unfinishedTasks.add(dbFetcher);
         setProcessAnimation(true);
     }
