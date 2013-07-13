@@ -33,19 +33,19 @@ public class RssParser {
                 String tagName = parser.getName();
                 switch (eventType) {
                     case XmlPullParser.START_TAG:
-                        if (tagName == ITEM_TAG) {
+                        if (tagName.equals(ITEM_TAG)) {
                             currentArticle = new Article();
                         } else if (currentArticle == null) {
                             break;
-                        } else if (tagName == Article.TITLE) {
+                        } else if (tagName.equals(Article.TITLE)) {
                             currentArticle.setTitle(parser.nextText());
-                        } else if (tagName == Article.DESCRIPTION) {
+                        } else if (tagName.equals(Article.DESCRIPTION)) {
                             currentArticle.setDescription(parser.nextText());
-                        } else if (tagName == Article.IMAGE) {
+                        } else if (tagName.equals(Article.IMAGE)) {
                             currentArticle.setImage(NetworkUtil.downloadImage(parser.getAttributeValue("", URL_ATTR)));
-                        } else if (tagName == Article.TEXT) {
+                        } else if (tagName.equals(Article.TEXT)) {
                             currentArticle.setText(parser.nextText());
-                        } else if (tagName == Article.DATE) {
+                        } else if (tagName.equals(Article.DATE)) {
                             currentArticle.setDateStringRFC(parser.nextText());
 
                             done = (lastArticleDate != null) && (currentArticle.getDate().compareTo(lastArticleDate) <= 0);
@@ -53,11 +53,10 @@ public class RssParser {
                         break;
 
                     case XmlPullParser.END_TAG:
-                        if (tagName == ITEM_TAG) {
+                        if (tagName.equals(ITEM_TAG)) {
                             articles.add(currentArticle);
                         }
                         break;
-
                 }
 
                 eventType = parser.next();

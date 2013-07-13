@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 // POJO
 public class Article implements Cloneable {
@@ -26,7 +27,7 @@ public class Article implements Cloneable {
     private boolean viewed = false;
 
     private SimpleDateFormat ISOdateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private SimpleDateFormat RFCdateFormatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
+    private SimpleDateFormat RFCdateFormatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
 
     public long getId() {
         return this.id;
@@ -78,14 +79,6 @@ public class Article implements Cloneable {
 
     public void setDate(Date date) {
         this.date = date;
-    }
-
-    public void setDateString(String date) {
-        try {
-            this.date = ISOdateFormatter.parse(date);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void setDateStringRFC(String date) {
