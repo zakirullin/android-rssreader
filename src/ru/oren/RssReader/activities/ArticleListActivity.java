@@ -147,6 +147,8 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
 
     @Override
     protected void onStop() {
+        super.onStop();
+
         if (viewedArticles.size() != 0) {
             new Thread(new Runnable() {
                 @Override
@@ -176,6 +178,5 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
         } else {
             ((ImageView) findViewById(R.id.ivUpdate)).clearAnimation();
         }
-
     }
 }
