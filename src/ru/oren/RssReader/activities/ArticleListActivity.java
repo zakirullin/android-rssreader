@@ -116,30 +116,47 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
         setContentView(R.layout.activity_article_list);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title);
 
-
         this.listAdapter = new ListAdapter(this);
         ((ListView) findViewById(R.id.lvArticles)).setAdapter(listAdapter);
 
         ((ListView) findViewById(R.id.lvArticles)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
-                viewedArticles.add(listAdapter.getItemId(index));
-                ((Article) listAdapter.getItem(index)).setViewed(true);
-                listAdapter.notifyDataSetChanged();
+                Article article = ((Article)listAdapter.getItem(index));
+
+                if (!article.isViewed()) {
+                    viewedArticles.add(listAdapter.getItemId(index));
+                    article.setViewed(true);
+                    listAdapter.notifyDataSetChanged();
+                }
 
                 Intent intent = new Intent(ArticleListActivity.this, ArticleDetailActivity.class);
-                intent.putExtra(Article.TITLE, ((Article) listAdapter.getItem(index)).getTitle());
-                intent.putExtra(Article.TEXT, ((Article) listAdapter.getItem(index)).getText());
+                intent.putExtra(Article.TITLE, article.getTitle());
+                intent.putExtra(Article.TEXT, article.getText());
                 startActivity(intent);
             }
         });
 
         DB.getInstance().init(getApplicationContext());
+
         DBFetcher dbFetcher = new DBFetcher();
         dbFetcher.addListener(this);
         dbFetcher.execute();
+
         unfinishedTasks.add(dbFetcher);
         setProcessAnimation(true);
+    }
+
+    @Override
+    protected void onStop() {
+        if (viewedArticles.size() != 0) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    DB.getInstance().setViewed(viewedArticles);
+                }
+            }).start();
+        }
     }
 
     @Override
@@ -148,15 +165,6 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
 
         for (AsyncTask unfinishedTask : unfinishedTasks) {
             unfinishedTask.cancel(true);
-        }
-
-        if (viewedArticles.size() != 0) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    DB.getInstance().setViewed(viewedArticles);
-                }
-            }).start();
         }
     }
 
