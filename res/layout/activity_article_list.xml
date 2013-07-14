@@ -10,7 +10,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:gravity="center"
-              android:text="@string/load_articles_message"
+              android:text="@string/loading_articles"
               android:textColor="#000000"/>
 
     <TextView android:id="@+id/tvNoArticlesMessage"
@@ -18,7 +18,7 @@
               android:layout_height="match_parent"
               android:gravity="center"
               android:visibility="gone"
-              android:text="@string/no_articles_message"
+              android:text="@string/no_articles"
               android:textColor="#000000"/>
     <ListView
             android:id="@+id/lvArticles"
