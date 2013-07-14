@@ -24,10 +24,11 @@
                 android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="3"
                 android:textSize="14sp"
                 android:textStyle="italic"
-                android:textColor="#000000"/>
+                android:textColor="#000000"
+                android:singleLine="true"
+                android:ellipsize="end"/>
 
         <TextView
                 android:id="@+id/tvDescription"
@@ -38,14 +39,14 @@
                 android:textStyle="italic"
                 android:textColor="#534551"
                 android:maxLines="2"
-                />
+                android:ellipsize="end"/>
 
         <TextView
                 android:id="@+id/tvDate"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textColor="#409028"
                 android:gravity="bottom|right"/>
 
