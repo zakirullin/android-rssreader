@@ -10,8 +10,8 @@
     <ImageView
             android:id="@+id/ivHeader"
             android:src="@drawable/logo"
-            android:layout_width="40dip"
-            android:layout_height="40dip"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
     <include layout="@layout/vertical_separator">
     </include>
@@ -32,7 +32,7 @@
     <ImageView
             android:id="@+id/ivUpdate"
             android:src="@drawable/update"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="32dip"
+            android:layout_height="32dip"
             android:onClick="refreshList"/>
 </LinearLayout>
