@@ -1,7 +1,9 @@
 package ru.oren.RssReader.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -21,6 +23,7 @@ import ru.oren.RssReader.parser.RssFetcher;
 import ru.oren.RssReader.parser.RssFetcherListener;
 import ru.oren.RssReader.utils.NetworkUtil;
 
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 public class ArticleListActivity extends Activity implements DBFetcherListener, RssFetcherListener {
@@ -101,6 +104,8 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
             ((TextView) findViewById(R.id.tvNoArticlesMessage)).setVisibility(View.GONE);
 
             ((ListView) findViewById(R.id.lvArticles)).smoothScrollToPosition(0);
+
+            Toast.makeText(getApplicationContext(), "Новых новостей: " + Integer.toString(articles.size()), TOAST_TIMEOUT).show();
         } else {
             Toast.makeText(getApplicationContext(), "Новых новостей нет", TOAST_TIMEOUT).show();
         }
@@ -116,7 +121,7 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
         setContentView(R.layout.activity_article_list);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title);
 
-        this.listAdapter = new ListAdapter(this);
+        this.listAdapter = new ListAdapter(getApplicationContext());
         ((ListView) findViewById(R.id.lvArticles)).setAdapter(listAdapter);
 
         ((ListView) findViewById(R.id.lvArticles)).setOnItemClickListener(new AdapterView.OnItemClickListener() {

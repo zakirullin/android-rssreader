@@ -1,6 +1,7 @@
 package ru.oren.RssReader.adapters;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -54,9 +55,13 @@ public class ListAdapter extends BaseAdapter {
 
         Article article = articles.get(i);
 
-        ((TextView) view.findViewById(R.id.tvTitle)).setText(Html.fromHtml(article.getTitle()));
-        ((TextView) view.findViewById(R.id.tvDate)).setText(article.getDateString());
-        ((ImageView) view.findViewById(R.id.ivImage)).setImageBitmap(article.getImage());
+        ((TextView)view.findViewById(R.id.tvTitle)).setText(Html.fromHtml(article.getTitle()));
+        ((TextView)view.findViewById(R.id.tvDate)).setText(article.getDateString());
+        ((ImageView)view.findViewById(R.id.ivImage)).setImageBitmap(article.getImage());
+        boolean largeScreen = (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE;
+        if (largeScreen) {
+            ((TextView)view.findViewById(R.id.tvDescription)).setText(Html.fromHtml(article.getDescription()));
+        }
 
         int typeface;
         if (article.isViewed()) {
