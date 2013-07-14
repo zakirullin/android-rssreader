@@ -8,9 +8,9 @@
         android:background="#f2f2f2">
 
     <TextView
-            android:id="@+id/tvDetail"
+            android:id="@+id/tvDetailText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:textSize="16dp"
             android:textColor="#000000"/>
 
