@@ -18,7 +18,7 @@
             android:theme="@style/AppTheme">
         <activity
                 android:name="ru.oren.RssReader.activities.ArticleListActivity"
-                android:label="@string/title_activity_article_list">
+                android:label="@string/article_list_title">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
