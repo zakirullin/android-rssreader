@@ -20,9 +20,9 @@ public class ArticleDetailActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_article_detail);
-        setTitle(getIntent().getStringExtra(Article.TITLE));
+        setTitle(" " + getIntent().getStringExtra(Article.TITLE));
 
-        ((TextView) findViewById(R.id.tvDetail)).setText(Html.fromHtml(getIntent().getStringExtra(Article.TEXT)));
-        ((TextView) findViewById(R.id.tvDetail)).setMovementMethod(new ScrollingMovementMethod());
+        ((TextView) findViewById(R.id.tvDetailText)).setText(Html.fromHtml(getIntent().getStringExtra(Article.TEXT)));
+        ((TextView) findViewById(R.id.tvDetailText)).setMovementMethod(new ScrollingMovementMethod());
     }
 }
