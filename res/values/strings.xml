@@ -6,6 +6,6 @@
     <string name="btn_back">Назад</string>
     <string name="title_activity_article_list">Новости Оренбурга</string>
     <string name="title_activity_article_detail">Подробнее</string>
-    <string name="load_articles_message">Загрузка новостей...</string>
+    <string name="load_articles_message">Загрузка сохраненных новостей...</string>
     <string name="no_articles_message">Для обновления новостей нажмите кнопку \"Обновить\"</string>
 </resources>
