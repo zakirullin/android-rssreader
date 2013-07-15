@@ -27,4 +27,5 @@
             android:layout_weight="1"
             android:dividerHeight="2dip"
             android:divider="@drawable/divider_background"/>
+
 </LinearLayout>
