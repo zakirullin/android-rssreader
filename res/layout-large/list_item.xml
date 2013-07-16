@@ -36,7 +36,6 @@
                 android:layout_height="0dip"
                 android:layout_weight="2"
                 android:textSize="11sp"
-                android:textStyle="italic"
                 android:textColor="#534551"
                 android:maxLines="2"
                 android:ellipsize="end"/>
