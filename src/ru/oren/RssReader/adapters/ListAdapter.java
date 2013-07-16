@@ -50,17 +50,18 @@ public class ListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup parent) {
-        if (view == null)
+        if (view == null) {
             view = lInflater.inflate(R.layout.list_item, parent, false);
+        }
 
         Article article = articles.get(i);
 
-        ((TextView)view.findViewById(R.id.tvTitle)).setText(Html.fromHtml(article.getTitle()));
-        ((TextView)view.findViewById(R.id.tvDate)).setText(article.getDateString());
-        ((ImageView)view.findViewById(R.id.ivImage)).setImageBitmap(article.getImage());
+        ((TextView) view.findViewById(R.id.tvTitle)).setText(Html.fromHtml(article.getTitle()));
+        ((TextView) view.findViewById(R.id.tvDate)).setText(article.getDateString());
+        ((ImageView) view.findViewById(R.id.ivImage)).setImageBitmap(article.getImage());
         boolean largeScreen = (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE;
         if (largeScreen) {
-            ((TextView)view.findViewById(R.id.tvDescription)).setText(Html.fromHtml(article.getDescription()));
+            ((TextView) view.findViewById(R.id.tvDescription)).setText(Html.fromHtml(article.getDescription()));
         }
 
         int typeface;

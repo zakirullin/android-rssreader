@@ -18,8 +18,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class DB implements RssFetcherListener {
     public static final String DB_NAME = "OrenNewsDB";
-    public static final String ARTICLES_TABLE_NAME = "articles";
     public static final int DB_VERSION = 18;
+    public static final String ARTICLES_TABLE_NAME = "articles";
+    public static final int MAX_ARTICLES = 60;
+    public static final int ARTICLES_TO_DELETE = 15;
 
     private ReentrantLock dbAccess = new ReentrantLock();
     private DBOpenHelper dbOpenHelper;
@@ -38,10 +40,11 @@ public class DB implements RssFetcherListener {
         dbAccess.lock();
         open();
 
+        ArrayList<Article> articles = new ArrayList<Article>();
         String query = String.format("SELECT * FROM %1$s ORDER BY %2$s DESC", ARTICLES_TABLE_NAME, Article.DATE);
         Cursor cursor = db.rawQuery(query, null);
-        ArrayList<Article> articles = new ArrayList<Article>();
-        if (cursor.getCount() > 0 && cursor.moveToFirst()) {
+        int totalArticles = cursor.getCount();
+        if (totalArticles > 0 && cursor.moveToFirst()) {
             int idColumnIndex = cursor.getColumnIndex(Article.ID);
             int titleColumnIndex = cursor.getColumnIndex(Article.TITLE);
             int descriptionColumnIndex = cursor.getColumnIndex(Article.DESCRIPTION);
@@ -50,6 +53,7 @@ public class DB implements RssFetcherListener {
             int dateColumnIndex = cursor.getColumnIndex(Article.DATE);
             int viewedColumnIndex = cursor.getColumnIndex(Article.VIEWED);
 
+            boolean needNewArticle;
             do {
                 Article article = new Article();
                 article.setId(cursor.getLong(idColumnIndex));
@@ -64,10 +68,17 @@ public class DB implements RssFetcherListener {
                 article.setImage(BitmapFactory.decodeStream(imageStream));
 
                 articles.add(article);
-            } while (cursor.moveToNext());
+
+                needNewArticle = articles.size() < (MAX_ARTICLES - ARTICLES_TO_DELETE);
+            } while (cursor.moveToNext() && needNewArticle);
+        }
+        cursor.close();
+
+        if (totalArticles >= MAX_ARTICLES) {
+            String whereClause = String.format("%2$s IN (SELECT %2$s FROM %1$s ORDER BY %3$s LIMIT %4$d)", ARTICLES_TABLE_NAME, Article.ID, Article.DATE, ARTICLES_TO_DELETE);
+            db.delete(ARTICLES_TABLE_NAME, whereClause, null);
         }
 
-        cursor.close();
         close();
         dbAccess.unlock();
 
