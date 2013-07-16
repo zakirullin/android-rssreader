@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.Toast;
 import ru.oren.RssReader.R;
 import ru.oren.RssReader.adapters.ListAdapter;
 import ru.oren.RssReader.db.DB;
@@ -27,6 +29,8 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
     private final int TOAST_TIMEOUT = 3;
     private final int ANIMATION_DURATION = 700;
 
+    private enum VisualState {START_FETCHING_FROM_DB, END_FETCHING_FROM_DB, EMPTY_DB, START_FETCHING_FROM_RSS, END_FETCHING_FROM_RSS, NEW_CONTENT_FROM_RSS};
+
     private ListAdapter listAdapter;
     private boolean refreshEnabled = false;
     private ArrayList<AsyncTask> unfinishedTasks = new ArrayList<AsyncTask>();
@@ -40,8 +44,7 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
         if (!NetworkUtil.isNetworkAvailable(getApplicationContext())) {
             Toast.makeText(getApplicationContext(), getString(R.string.no_internet), TOAST_TIMEOUT).show();
         } else {
-            setProcessAnimation(true);
-            this.refreshEnabled = false;
+            setVisualState(VisualState.START_FETCHING_FROM_RSS);
 
             RssFetcher rssFetcher = new RssFetcher();
             rssFetcher.addListener(this);
@@ -58,19 +61,16 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
 
     @Override
     public void onDBFetchingFinished(ArrayList<Article> articles, AsyncTask task) {
-        ((TextView) findViewById(R.id.tvLoadArticlesMessage)).setVisibility(View.GONE);
+        setVisualState(VisualState.END_FETCHING_FROM_DB);
 
         unfinishedTasks.remove(task);
-        setProcessAnimation(false);
 
         if (articles.size() != 0) {
             this.listAdapter.addArticles(articles);
             this.listAdapter.notifyDataSetChanged();
         } else {
-            ((TextView) findViewById(R.id.tvNoArticlesMessage)).setVisibility(View.VISIBLE);
+            setVisualState(VisualState.EMPTY_DB);
         }
-
-        this.refreshEnabled = true;
     }
 
     @Override
@@ -80,16 +80,15 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
 
     @Override
     public void onRssFetchingFinished(ArrayList<Article> articles, AsyncTask task) {
+        setVisualState(VisualState.END_FETCHING_FROM_RSS);
+
         unfinishedTasks.remove(task);
-        setProcessAnimation(false);
 
         if (articles.size() != 0) {
             this.listAdapter.addArticles(articles);
             this.listAdapter.notifyDataSetChanged();
 
-            ((TextView) findViewById(R.id.tvNoArticlesMessage)).setVisibility(View.GONE);
-
-            ((ListView) findViewById(R.id.lvArticles)).smoothScrollToPosition(0);
+            setVisualState(VisualState.NEW_CONTENT_FROM_RSS);
 
             Toast.makeText(getApplicationContext(), getString(R.string.new_articles) + Integer.toString(articles.size()), TOAST_TIMEOUT).show();
         } else {
@@ -97,6 +96,41 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
         }
 
         this.refreshEnabled = true;
+    }
+
+    private void setVisualState(VisualState visualState) {
+        switch (visualState) {
+            case START_FETCHING_FROM_DB: {
+                setProcessAnimation(true);
+                this.refreshEnabled = false;
+            }
+
+            case END_FETCHING_FROM_DB: {
+                findViewById(R.id.tvLoadArticlesMessage).setVisibility(View.GONE);
+
+                setProcessAnimation(false);
+                this.refreshEnabled = true;
+            }
+
+            case EMPTY_DB: {
+                findViewById(R.id.tvNoArticlesMessage).setVisibility(View.VISIBLE);
+            }
+
+            case START_FETCHING_FROM_RSS: {
+                setProcessAnimation(true);
+                this.refreshEnabled = false;
+            }
+
+            case END_FETCHING_FROM_RSS: {
+                setProcessAnimation(false);
+                this.refreshEnabled = true;
+            }
+
+            case NEW_CONTENT_FROM_RSS: {
+                findViewById(R.id.tvNoArticlesMessage).setVisibility(View.GONE);
+                ((ListView) findViewById(R.id.lvArticles)).smoothScrollToPosition(0);
+            }
+        }
     }
 
     @Override
@@ -133,7 +167,7 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
         dbFetcher.addListener(this);
         dbFetcher.execute();
         unfinishedTasks.add(dbFetcher);
-        setProcessAnimation(true);
+        setVisualState(VisualState.START_FETCHING_FROM_DB);
     }
 
     @Override
