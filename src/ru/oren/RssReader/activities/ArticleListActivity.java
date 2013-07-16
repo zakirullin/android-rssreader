@@ -1,9 +1,7 @@
 package ru.oren.RssReader.activities;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -23,7 +21,6 @@ import ru.oren.RssReader.parser.RssFetcher;
 import ru.oren.RssReader.parser.RssFetcherListener;
 import ru.oren.RssReader.utils.NetworkUtil;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 public class ArticleListActivity extends Activity implements DBFetcherListener, RssFetcherListener {
@@ -41,7 +38,7 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
         }
 
         if (!NetworkUtil.isNetworkAvailable(getApplicationContext())) {
-            Toast.makeText(getApplicationContext(), "Отсутствует подключение к сети Интернет", TOAST_TIMEOUT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.no_internet), TOAST_TIMEOUT).show();
         } else {
             setProcessAnimation(true);
             this.refreshEnabled = false;
@@ -105,9 +102,9 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
 
             ((ListView) findViewById(R.id.lvArticles)).smoothScrollToPosition(0);
 
-            Toast.makeText(getApplicationContext(), "Новых новостей: " + Integer.toString(articles.size()), TOAST_TIMEOUT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.new_articles) + Integer.toString(articles.size()), TOAST_TIMEOUT).show();
         } else {
-            Toast.makeText(getApplicationContext(), "Новых новостей нет", TOAST_TIMEOUT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.no_new_articles), TOAST_TIMEOUT).show();
         }
 
         this.refreshEnabled = true;
@@ -127,7 +124,7 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
         ((ListView) findViewById(R.id.lvArticles)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
-                Article article = ((Article)listAdapter.getItem(index));
+                Article article = ((Article) listAdapter.getItem(index));
 
                 if (!article.isViewed()) {
                     viewedArticles.add(listAdapter.getItemId(index));
@@ -142,7 +139,7 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
             }
         });
 
-        DB.getInstance().init(getApplicationContext());
+        DB.init(getApplicationContext());
         DBFetcher dbFetcher = new DBFetcher();
         dbFetcher.addListener(this);
         dbFetcher.execute();
@@ -174,7 +171,7 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
     }
 
     private void setProcessAnimation(boolean flag) {
-        if (flag == true) {
+        if (flag) {
             RotateAnimation animation = new RotateAnimation(0.0f, 360.0f, RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
             animation.setDuration(ANIMATION_DURATION);
             animation.setRepeatCount(RotateAnimation.INFINITE);
