@@ -84,10 +84,10 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
         unfinishedTasks.remove(task);
 
         if (articles.size() != 0) {
+            setVisualState(VisualState.NEW_CONTENT_FROM_RSS);
+            
             this.listAdapter.addArticles(articles);
             this.listAdapter.notifyDataSetChanged();
-
-            setVisualState(VisualState.NEW_CONTENT_FROM_RSS);
 
             Toast.makeText(getApplicationContext(), getString(R.string.new_articles) + Integer.toString(articles.size()), TOAST_TIMEOUT).show();
         } else {
