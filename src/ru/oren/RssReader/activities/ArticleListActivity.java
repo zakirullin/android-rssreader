@@ -57,17 +57,6 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                refreshList(null);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
     public void onDBFetchingFinished(ArrayList<Article> articles, AsyncTask task) {
         ((TextView) findViewById(R.id.tvLoadArticlesMessage)).setVisibility(View.GONE);
 
