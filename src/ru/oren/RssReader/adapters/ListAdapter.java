@@ -25,8 +25,12 @@ public class ListAdapter extends BaseAdapter {
         lInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void addArticles(ArrayList<Article> articles) {
+    public void prependArticles(ArrayList<Article> articles) {
         this.articles.addAll(0, articles);
+    }
+
+    public void addArticles(ArrayList<Article> articles) {
+        this.articles.addAll(articles);
     }
 
     public ArrayList<Article> getArticles() {

@@ -10,7 +10,6 @@ import android.view.Window;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 import ru.oren.RssReader.R;
@@ -29,15 +28,17 @@ import java.util.ArrayList;
 public class ArticleListActivity extends Activity implements DBFetcherObserver, RssFetcherObserver {
     private final int TOAST_TIMEOUT = 3;
     private final int ANIMATION_DURATION = 700;
-    private final String BUNDLE_VISUAL_STATE_KEY = "VisualState";
 
-    private enum VisualState {START_FETCHING_FROM_DB, END_FETCHING_FROM_DB, EMPTY_DB, START_FETCHING_FROM_RSS, END_FETCHING_FROM_RSS, NEW_CONTENT_FROM_RSS};
-    private VisualState currentVisualState = null;
+    private enum State {START_FETCHING_FROM_DB, END_FETCHING_FROM_DB, EMPTY_DB, START_FETCHING_FROM_RSS, END_FETCHING_FROM_RSS, NEW_CONTENT_FROM_RSS}
+
+    ;
+    private State currentState = null;
 
     private ListAdapter listAdapter;
     private boolean refreshEnabled = false;
-    private boolean autoRefresh = false;
+    private boolean configurationChanged = false;
     private ArrayList<AsyncTask> unfinishedTasks = new ArrayList<AsyncTask>();
+    private AsyncTask rssFetcherTask = null;
     private ArrayList<Long> viewedArticles = new ArrayList<Long>();
 
     public void refreshList(View view) {
@@ -48,14 +49,22 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
         if (!NetworkUtil.isNetworkAvailable(getApplicationContext())) {
             Toast.makeText(getApplicationContext(), getString(R.string.no_internet), TOAST_TIMEOUT).show();
         } else {
-            setVisualState(VisualState.START_FETCHING_FROM_RSS);
+            setState(State.START_FETCHING_FROM_RSS);
 
             RssFetcher rssFetcher = new RssFetcher();
             rssFetcher.addObserver(this);
             rssFetcher.addObserver(DB.getInstance());
             rssFetcher.execute();
             unfinishedTasks.add(rssFetcher);
+            rssFetcherTask = rssFetcher;
         }
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        configurationChanged = true;
+
+        return rssFetcherTask;
     }
 
     @Override
@@ -65,19 +74,15 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
 
     @Override
     public void onDBFetchingFinished(ArrayList<Article> articles, AsyncTask task) {
-        setVisualState(VisualState.END_FETCHING_FROM_DB);
+        setState(State.END_FETCHING_FROM_DB);
 
         unfinishedTasks.remove(task);
 
         if (articles.size() != 0) {
-            this.listAdapter.addArticles(articles);
-            this.listAdapter.notifyDataSetChanged();
+            listAdapter.addArticles(articles);
+            listAdapter.notifyDataSetChanged();
         } else {
-            setVisualState(VisualState.EMPTY_DB);
-        }
-
-        if (this.autoRefresh) {
-            refreshList(null);
+            setState(State.EMPTY_DB);
         }
     }
 
@@ -88,62 +93,20 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
 
     @Override
     public void onRssFetchingFinished(ArrayList<Article> articles, AsyncTask task) {
-        setVisualState(VisualState.END_FETCHING_FROM_RSS);
+        setState(State.END_FETCHING_FROM_RSS);
 
         unfinishedTasks.remove(task);
+        rssFetcherTask = null;
 
         if (articles.size() != 0) {
-            setVisualState(VisualState.NEW_CONTENT_FROM_RSS);
+            setState(State.NEW_CONTENT_FROM_RSS);
 
-            this.listAdapter.addArticles(articles);
-            this.listAdapter.notifyDataSetChanged();
+            listAdapter.prependArticles(articles);
+            listAdapter.notifyDataSetChanged();
 
             Toast.makeText(getApplicationContext(), getString(R.string.new_articles) + Integer.toString(articles.size()), TOAST_TIMEOUT).show();
         } else {
             Toast.makeText(getApplicationContext(), getString(R.string.no_new_articles), TOAST_TIMEOUT).show();
-        }
-    }
-
-    private void setVisualState(VisualState visualState) {
-        this.currentVisualState = visualState;
-
-        switch (visualState) {
-            case START_FETCHING_FROM_DB: {
-                setProcessAnimation(true);
-                this.refreshEnabled = false;
-                break;
-            }
-
-            case END_FETCHING_FROM_DB: {
-                findViewById(R.id.tvLoadArticlesMessage).setVisibility(View.GONE);
-
-                setProcessAnimation(false);
-                this.refreshEnabled = true;
-                break;
-            }
-
-            case EMPTY_DB: {
-                findViewById(R.id.tvNoArticlesMessage).setVisibility(View.VISIBLE);
-                break;
-            }
-
-            case START_FETCHING_FROM_RSS: {
-                setProcessAnimation(true);
-                this.refreshEnabled = false;
-                break;
-            }
-
-            case END_FETCHING_FROM_RSS: {
-                setProcessAnimation(false);
-                this.refreshEnabled = true;
-                break;
-            }
-
-            case NEW_CONTENT_FROM_RSS: {
-                findViewById(R.id.tvNoArticlesMessage).setVisibility(View.GONE);
-                ((ListView) findViewById(R.id.lvArticles)).smoothScrollToPosition(0);
-                break;
-            }
         }
     }
 
@@ -155,7 +118,7 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
         setContentView(R.layout.activity_article_list);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title);
 
-        this.listAdapter = new ListAdapter(getApplicationContext());
+        listAdapter = new ListAdapter(getApplicationContext());
         ((ListView) findViewById(R.id.lvArticles)).setAdapter(listAdapter);
 
         ((ListView) findViewById(R.id.lvArticles)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -181,23 +144,12 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
         dbFetcher.addObserver(this);
         dbFetcher.execute();
         unfinishedTasks.add(dbFetcher);
-        setVisualState(VisualState.START_FETCHING_FROM_DB);
-    }
+        setState(State.START_FETCHING_FROM_DB);
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putSerializable(BUNDLE_VISUAL_STATE_KEY, this.currentVisualState);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle inState) {
-        super.onSaveInstanceState(inState);
-
-        VisualState state = (VisualState) inState.getSerializable(BUNDLE_VISUAL_STATE_KEY);
-        if ((state != null) && (state == VisualState.START_FETCHING_FROM_RSS)) {
-            this.autoRefresh = true;
+        rssFetcherTask = (AsyncTask) getLastNonConfigurationInstance();
+        if (rssFetcherTask != null) {
+            ((Observable) rssFetcherTask).addObserver(this);
+            ((Observable) rssFetcherTask).addObserver(DB.getInstance());
         }
     }
 
@@ -220,20 +172,71 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
         super.onDestroy();
 
         for (AsyncTask unfinishedTask : unfinishedTasks) {
-            unfinishedTask.cancel(true);
             ((Observable) unfinishedTask).removeAllObservers();
+
+            boolean crossConfigurationTask = ((unfinishedTask == rssFetcherTask) && configurationChanged);
+            if (!crossConfigurationTask) {
+                unfinishedTask.cancel(false);
+            }
         }
     }
 
-    private void setProcessAnimation(boolean flag) {
+    private void setState(State state) {
+        switch (state) {
+            case START_FETCHING_FROM_DB: {
+                showProcessAnimation(true);
+                break;
+            }
+
+            case END_FETCHING_FROM_DB: {
+                findViewById(R.id.tvLoadArticlesMessage).setVisibility(View.GONE);
+
+                boolean backgroundTaskRunning = rssFetcherTask != null;
+                if (!backgroundTaskRunning) {
+                    showProcessAnimation(false);
+                }
+                break;
+            }
+
+            case EMPTY_DB: {
+                findViewById(R.id.tvNoArticlesMessage).setVisibility(View.VISIBLE);
+                break;
+            }
+
+            case START_FETCHING_FROM_RSS: {
+                showProcessAnimation(true);
+                break;
+            }
+
+            case END_FETCHING_FROM_RSS: {
+                boolean backgroundTaskRunning = currentState == State.START_FETCHING_FROM_DB;
+                if (!backgroundTaskRunning) {
+                    showProcessAnimation(false);
+                }
+                break;
+            }
+
+            case NEW_CONTENT_FROM_RSS: {
+                findViewById(R.id.tvNoArticlesMessage).setVisibility(View.GONE);
+                ((ListView) findViewById(R.id.lvArticles)).smoothScrollToPosition(0);
+                break;
+            }
+        }
+
+        currentState = state;
+    }
+
+    private void showProcessAnimation(boolean flag) {
         if (flag) {
             RotateAnimation animation = new RotateAnimation(0.0f, 360.0f, RotateAnimation.RELATIVE_TO_SELF, 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
             animation.setDuration(ANIMATION_DURATION);
             animation.setRepeatCount(RotateAnimation.INFINITE);
             animation.setInterpolator(new LinearInterpolator());
-            ((ImageView) findViewById(R.id.ivUpdate)).startAnimation(animation);
+            findViewById(R.id.ivUpdate).startAnimation(animation);
         } else {
-            ((ImageView) findViewById(R.id.ivUpdate)).clearAnimation();
+            findViewById(R.id.ivUpdate).clearAnimation();
         }
+
+        refreshEnabled = !flag;
     }
 }
