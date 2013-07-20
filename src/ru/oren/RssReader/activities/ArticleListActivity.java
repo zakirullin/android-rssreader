@@ -29,6 +29,7 @@ import java.util.ArrayList;
 public class ArticleListActivity extends Activity implements DBFetcherObserver, RssFetcherObserver {
     private final int TOAST_TIMEOUT = 3;
     private final int ANIMATION_DURATION = 700;
+    private final String BUNDLE_VISUAL_STATE_KEY = "VisualState";
 
     private enum VisualState {START_FETCHING_FROM_DB, END_FETCHING_FROM_DB, EMPTY_DB, START_FETCHING_FROM_RSS, END_FETCHING_FROM_RSS, NEW_CONTENT_FROM_RSS}
 
@@ -38,6 +39,8 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
     private boolean refreshEnabled = false;
     private ArrayList<AsyncTask> unfinishedTasks = new ArrayList<AsyncTask>();
     private ArrayList<Long> viewedArticles = new ArrayList<Long>();
+    private VisualState currentVisualState = null;
+    private boolean autoRefresh = false;
 
     public void refreshList(View view) {
         if (!refreshEnabled) {
@@ -74,6 +77,10 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
         } else {
             setVisualState(VisualState.EMPTY_DB);
         }
+
+        if (this.autoRefresh) {
+            refreshList(null);
+        }
     }
 
     @Override
@@ -97,11 +104,11 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
         } else {
             Toast.makeText(getApplicationContext(), getString(R.string.no_new_articles), TOAST_TIMEOUT).show();
         }
-
-        this.refreshEnabled = true;
     }
 
     private void setVisualState(VisualState visualState) {
+        this.currentVisualState = visualState;
+
         switch (visualState) {
             case START_FETCHING_FROM_DB: {
                 setProcessAnimation(true);
@@ -177,6 +184,23 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
         dbFetcher.execute();
         unfinishedTasks.add(dbFetcher);
         setVisualState(VisualState.START_FETCHING_FROM_DB);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putSerializable(BUNDLE_VISUAL_STATE_KEY, this.currentVisualState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle inState) {
+        super.onSaveInstanceState(inState);
+
+        VisualState state = (VisualState) inState.getSerializable(BUNDLE_VISUAL_STATE_KEY);
+        if ((state != null) && (state == VisualState.START_FETCHING_FROM_RSS)) {
+            this.autoRefresh = true;
+        }
     }
 
     @Override
