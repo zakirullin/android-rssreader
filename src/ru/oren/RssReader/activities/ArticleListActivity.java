@@ -17,19 +17,22 @@ import ru.oren.RssReader.R;
 import ru.oren.RssReader.adapters.ListAdapter;
 import ru.oren.RssReader.db.DB;
 import ru.oren.RssReader.db.DBFetcher;
-import ru.oren.RssReader.db.DBFetcherListener;
 import ru.oren.RssReader.entities.Article;
+import ru.oren.RssReader.interfaces.DBFetcherObserver;
+import ru.oren.RssReader.interfaces.Observable;
+import ru.oren.RssReader.interfaces.RssFetcherObserver;
 import ru.oren.RssReader.parser.RssFetcher;
-import ru.oren.RssReader.parser.RssFetcherListener;
 import ru.oren.RssReader.utils.NetworkUtil;
 
 import java.util.ArrayList;
 
-public class ArticleListActivity extends Activity implements DBFetcherListener, RssFetcherListener {
+public class ArticleListActivity extends Activity implements DBFetcherObserver, RssFetcherObserver {
     private final int TOAST_TIMEOUT = 3;
     private final int ANIMATION_DURATION = 700;
 
-    private enum VisualState {START_FETCHING_FROM_DB, END_FETCHING_FROM_DB, EMPTY_DB, START_FETCHING_FROM_RSS, END_FETCHING_FROM_RSS, NEW_CONTENT_FROM_RSS};
+    private enum VisualState {START_FETCHING_FROM_DB, END_FETCHING_FROM_DB, EMPTY_DB, START_FETCHING_FROM_RSS, END_FETCHING_FROM_RSS, NEW_CONTENT_FROM_RSS}
+
+    ;
 
     private ListAdapter listAdapter;
     private boolean refreshEnabled = false;
@@ -47,8 +50,8 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
             setVisualState(VisualState.START_FETCHING_FROM_RSS);
 
             RssFetcher rssFetcher = new RssFetcher();
-            rssFetcher.addListener(this);
-            rssFetcher.addListener(DB.getInstance());
+            rssFetcher.addObserver(this);
+            rssFetcher.addObserver(DB.getInstance());
             rssFetcher.execute();
             unfinishedTasks.add(rssFetcher);
         }
@@ -103,6 +106,7 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
             case START_FETCHING_FROM_DB: {
                 setProcessAnimation(true);
                 this.refreshEnabled = false;
+                break;
             }
 
             case END_FETCHING_FROM_DB: {
@@ -110,25 +114,30 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
 
                 setProcessAnimation(false);
                 this.refreshEnabled = true;
+                break;
             }
 
             case EMPTY_DB: {
                 findViewById(R.id.tvNoArticlesMessage).setVisibility(View.VISIBLE);
+                break;
             }
 
             case START_FETCHING_FROM_RSS: {
                 setProcessAnimation(true);
                 this.refreshEnabled = false;
+                break;
             }
 
             case END_FETCHING_FROM_RSS: {
                 setProcessAnimation(false);
                 this.refreshEnabled = true;
+                break;
             }
 
             case NEW_CONTENT_FROM_RSS: {
                 findViewById(R.id.tvNoArticlesMessage).setVisibility(View.GONE);
                 ((ListView) findViewById(R.id.lvArticles)).smoothScrollToPosition(0);
+                break;
             }
         }
     }
@@ -164,7 +173,7 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
 
         DB.init(getApplicationContext());
         DBFetcher dbFetcher = new DBFetcher();
-        dbFetcher.addListener(this);
+        dbFetcher.addObserver(this);
         dbFetcher.execute();
         unfinishedTasks.add(dbFetcher);
         setVisualState(VisualState.START_FETCHING_FROM_DB);
@@ -190,6 +199,7 @@ public class ArticleListActivity extends Activity implements DBFetcherListener, 
 
         for (AsyncTask unfinishedTask : unfinishedTasks) {
             unfinishedTask.cancel(true);
+            ((Observable) unfinishedTask).removeAllObservers();
         }
     }
 
