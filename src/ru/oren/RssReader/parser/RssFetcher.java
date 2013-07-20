@@ -3,11 +3,13 @@ package ru.oren.RssReader.parser;
 import android.os.AsyncTask;
 import ru.oren.RssReader.db.DB;
 import ru.oren.RssReader.entities.Article;
+import ru.oren.RssReader.interfaces.Observable;
+import ru.oren.RssReader.interfaces.RssFetcherObserver;
 
 import java.util.ArrayList;
 
-public class RssFetcher extends AsyncTask<String, Void, ArrayList<Article>> {
-    private ArrayList<RssFetcherListener> listeners = new ArrayList<RssFetcherListener>();
+public class RssFetcher extends AsyncTask<String, Void, ArrayList<Article>> implements Observable {
+    private ArrayList<RssFetcherObserver> observers = new ArrayList<RssFetcherObserver>();
 
     @Override
     public ArrayList<Article> doInBackground(String... params) {
@@ -19,21 +21,25 @@ public class RssFetcher extends AsyncTask<String, Void, ArrayList<Article>> {
     protected void onPostExecute(final ArrayList<Article> articles) {
         super.onPostExecute(articles);
 
-        for (final RssFetcherListener listener : listeners) {
-            if (listener.isAsync()) {
+        for (final RssFetcherObserver observer : observers) {
+            if (observer.isAsync()) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        listener.onRssFetchingFinished(articles, RssFetcher.this);
+                        observer.onRssFetchingFinished(articles, RssFetcher.this);
                     }
                 }).start();
             } else {
-                listener.onRssFetchingFinished(articles, this);
+                observer.onRssFetchingFinished(articles, this);
             }
         }
     }
 
-    public void addListener(RssFetcherListener listener) {
-        listeners.add(listener);
+    public void addObserver(Object observer) {
+        observers.add((RssFetcherObserver) observer);
+    }
+
+    public void removeAllObservers() {
+        observers.clear();
     }
 }

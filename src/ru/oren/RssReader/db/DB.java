@@ -8,7 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import ru.oren.RssReader.entities.Article;
-import ru.oren.RssReader.parser.RssFetcherListener;
+import ru.oren.RssReader.interfaces.RssFetcherObserver;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class DB implements RssFetcherListener {
+public class DB implements RssFetcherObserver {
     public static final String DB_NAME = "OrenNewsDB";
     public static final int DB_VERSION = 18;
     public static final String ARTICLES_TABLE_NAME = "articles";
