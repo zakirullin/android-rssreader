@@ -31,9 +31,7 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
     private final int ANIMATION_DURATION = 700;
     private final String BUNDLE_VISUAL_STATE_KEY = "VisualState";
 
-    private enum VisualState {START_FETCHING_FROM_DB, END_FETCHING_FROM_DB, EMPTY_DB, START_FETCHING_FROM_RSS, END_FETCHING_FROM_RSS, NEW_CONTENT_FROM_RSS}
-
-    ;
+    private enum VisualState {START_FETCHING_FROM_DB, END_FETCHING_FROM_DB, EMPTY_DB, START_FETCHING_FROM_RSS, END_FETCHING_FROM_RSS, NEW_CONTENT_FROM_RSS};
 
     private ListAdapter listAdapter;
     private boolean refreshEnabled = false;
