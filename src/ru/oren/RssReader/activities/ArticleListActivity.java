@@ -32,13 +32,13 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
     private final String BUNDLE_VISUAL_STATE_KEY = "VisualState";
 
     private enum VisualState {START_FETCHING_FROM_DB, END_FETCHING_FROM_DB, EMPTY_DB, START_FETCHING_FROM_RSS, END_FETCHING_FROM_RSS, NEW_CONTENT_FROM_RSS};
+    private VisualState currentVisualState = null;
 
     private ListAdapter listAdapter;
     private boolean refreshEnabled = false;
+    private boolean autoRefresh = false;
     private ArrayList<AsyncTask> unfinishedTasks = new ArrayList<AsyncTask>();
     private ArrayList<Long> viewedArticles = new ArrayList<Long>();
-    private VisualState currentVisualState = null;
-    private boolean autoRefresh = false;
 
     public void refreshList(View view) {
         if (!refreshEnabled) {
