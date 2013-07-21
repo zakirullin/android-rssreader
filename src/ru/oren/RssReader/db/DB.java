@@ -29,7 +29,9 @@ public class DB implements RssFetcherObserver {
     private static DB dbInstance = null;
 
     public static void init(Context context) {
-        dbInstance = new DB(context);
+        if (dbInstance != null) {
+            dbInstance = new DB(context);
+        }
     }
 
     public static DB getInstance() {
