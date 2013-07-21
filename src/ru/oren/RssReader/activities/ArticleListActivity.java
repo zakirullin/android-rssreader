@@ -156,12 +156,7 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
         super.onStop();
 
         if (viewedArticles.size() != 0) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    DB.getInstance().setViewed(viewedArticles);
-                }
-            }).start();
+            DB.getInstance().setViewed(viewedArticles);
         }
     }
 
