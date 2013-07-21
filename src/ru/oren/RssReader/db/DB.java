@@ -91,7 +91,7 @@ public class DB implements RssFetcherObserver {
         dbAccess.lock();
         open();
 
-        String query = String.format("SELECT * FROM %1$s WHERE %2$s = (SELECT MAX( %2$s ) FROM %1$s )", ARTICLES_TABLE_NAME, Article.DATE);
+        String query = String.format("SELECT MAX( %1$s ) AS %1$s FROM %2$s", Article.DATE, ARTICLES_TABLE_NAME);
         Cursor cursor = db.rawQuery(query, null);
 
         Date date = null;
@@ -104,6 +104,25 @@ public class DB implements RssFetcherObserver {
         dbAccess.unlock();
 
         return date;
+    }
+
+    public long getLastId() {
+        dbAccess.lock();
+        open();
+
+        String query = String.format("SELECT MAX( %1$s ) AS %1$s FROM %2$s", Article.ID, ARTICLES_TABLE_NAME);
+        Cursor cursor = db.rawQuery(query, null);
+
+        long lastId = 0;
+        if (cursor.getCount() > 0 && cursor.moveToFirst()) {
+            lastId = cursor.getLong(cursor.getColumnIndex(Article.ID));
+        }
+
+        cursor.close();
+        close();
+        dbAccess.unlock();
+
+        return lastId;
     }
 
     public void setViewed(ArrayList<Long> ids) {

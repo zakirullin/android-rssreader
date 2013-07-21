@@ -17,7 +17,7 @@ public class RssParser {
     private final String ITEM_TAG = "item";
     private final String URL_ATTR = "url";
 
-    public ArrayList<Article> parse(Date lastArticleDate) {
+    public ArrayList<Article> parse(Date lastArticleDate, Long lastId) {
         ArrayList<Article> articles = new ArrayList<Article>();
         XmlPullParser parser = Xml.newPullParser();
         try {
@@ -35,6 +35,7 @@ public class RssParser {
                     case XmlPullParser.START_TAG:
                         if (tagName.equals(ITEM_TAG)) {
                             currentArticle = new Article();
+                            currentArticle.setId(++lastId);
                         } else if (currentArticle == null) {
                             break;
                         } else if (tagName.equals(Article.TITLE)) {
