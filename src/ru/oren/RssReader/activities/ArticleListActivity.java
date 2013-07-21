@@ -24,12 +24,17 @@ import ru.oren.RssReader.parser.RssFetcher;
 import ru.oren.RssReader.utils.NetworkUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ArticleListActivity extends Activity implements DBFetcherObserver, RssFetcherObserver {
     private final int TOAST_TIMEOUT = 3;
     private final int ANIMATION_DURATION = 700;
+    private final int RETAIN_INSTANCE_RSS_FETCHER = 0;
+    private final int RETAIN_INSTANCE_ARTICLES = 1;
 
-    private enum State {START_FETCHING_FROM_DB, END_FETCHING_FROM_DB, EMPTY_DB, START_FETCHING_FROM_RSS, END_FETCHING_FROM_RSS, NEW_CONTENT_FROM_RSS};
+    private enum State {START_FETCHING_FROM_DB, END_FETCHING_FROM_DB, EMPTY_DB, START_FETCHING_FROM_RSS, END_FETCHING_FROM_RSS, NEW_CONTENT_FROM_RSS}
+
+    ;
     private State currentState = null;
 
     private ListAdapter listAdapter;
@@ -62,7 +67,11 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
     public Object onRetainNonConfigurationInstance() {
         configurationChanged = true;
 
-        return rssFetcherTask;
+        HashMap<Integer, Object> retainInstance = new HashMap<Integer, Object>();
+        retainInstance.put(RETAIN_INSTANCE_RSS_FETCHER, rssFetcherTask);
+        retainInstance.put(RETAIN_INSTANCE_ARTICLES, listAdapter.getArticles());
+
+        return retainInstance;
     }
 
     @Override
@@ -138,16 +147,35 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
         });
 
         DB.init(getApplicationContext());
-        DBFetcher dbFetcher = new DBFetcher();
-        dbFetcher.addObserver(this);
-        dbFetcher.execute();
-        unfinishedTasks.add(dbFetcher);
-        setState(State.START_FETCHING_FROM_DB);
 
-        rssFetcherTask = (AsyncTask) getLastNonConfigurationInstance();
-        if (rssFetcherTask != null) {
-            ((Observable) rssFetcherTask).addObserver(this);
-            ((Observable) rssFetcherTask).addObserver(DB.getInstance());
+        // Restore state if screen was rotated previously
+        boolean mustFetchFromDB = true;
+        HashMap<Integer, Object> retainInstance = (HashMap<Integer, Object>) getLastNonConfigurationInstance();
+        if (retainInstance != null) {
+            // Restroe RssFetcher task
+            rssFetcherTask = (AsyncTask) retainInstance.get(RETAIN_INSTANCE_RSS_FETCHER);
+            if (rssFetcherTask != null) {
+                unfinishedTasks.add(rssFetcherTask);
+                ((Observable) rssFetcherTask).addObserver(this);
+                ((Observable) rssFetcherTask).addObserver(DB.getInstance());
+                setState(State.START_FETCHING_FROM_RSS);
+            }
+
+            // Restore data fetched from DB
+            ArrayList<Article> articles = (ArrayList<Article>) retainInstance.get(RETAIN_INSTANCE_ARTICLES);
+            if (articles.size() != 0) {
+                mustFetchFromDB = false;
+                listAdapter.addArticles(articles);
+                listAdapter.notifyDataSetChanged();
+                setState(State.END_FETCHING_FROM_DB);
+            }
+        }
+        if (mustFetchFromDB) {
+            DBFetcher dbFetcher = new DBFetcher();
+            dbFetcher.addObserver(this);
+            dbFetcher.execute();
+            unfinishedTasks.add(dbFetcher);
+            setState(State.START_FETCHING_FROM_DB);
         }
     }
 
@@ -156,7 +184,14 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
         super.onStop();
 
         if (viewedArticles.size() != 0) {
-            DB.getInstance().setViewed(viewedArticles);
+            final ArrayList<Long> copiedViewedArticles = new ArrayList<Long>(viewedArticles);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    DB.getInstance().setViewed(copiedViewedArticles);
+                }
+            }).start();
+            viewedArticles.clear();
         }
     }
 
