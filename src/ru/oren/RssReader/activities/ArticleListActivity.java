@@ -152,7 +152,7 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
         boolean mustFetchFromDB = true;
         HashMap<Integer, Object> retainInstance = (HashMap<Integer, Object>) getLastNonConfigurationInstance();
         if (retainInstance != null) {
-            // Restroe RssFetcher task
+            // Restore RssFetcher task
             rssFetcherTask = (AsyncTask) retainInstance.get(RETAIN_INSTANCE_RSS_FETCHER);
             if (rssFetcherTask != null) {
                 unfinishedTasks.add(rssFetcherTask);
