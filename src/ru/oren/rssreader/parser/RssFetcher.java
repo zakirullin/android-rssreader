@@ -14,7 +14,7 @@ public class RssFetcher extends AsyncTask<String, Void, ArrayList<Article>> impl
     @Override
     public ArrayList<Article> doInBackground(String... params) {
         RssParser parser = new RssParser();
-        return parser.parse(DB.getInstance().getLastArticleDate(), DB.getInstance().getLastId());
+        return parser.parse(DB.getInstance().getLastArticleDate(), DB.getInstance().getLastArticleId());
     }
 
     @Override

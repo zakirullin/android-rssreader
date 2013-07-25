@@ -188,7 +188,7 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    DB.getInstance().setViewed(copiedViewedArticles);
+                    DB.getInstance().setArticlesViewed(copiedViewedArticles);
                 }
             }).start();
             viewedArticles.clear();
