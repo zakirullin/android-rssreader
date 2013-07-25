@@ -34,7 +34,6 @@ public class ArticleListActivity extends Activity implements DBFetcherObserver, 
 
     private enum State {START_FETCHING_FROM_DB, END_FETCHING_FROM_DB, EMPTY_DB, START_FETCHING_FROM_RSS, END_FETCHING_FROM_RSS, NEW_CONTENT_FROM_RSS}
 
-    ;
     private State currentState = null;
 
     private ListAdapter listAdapter;
