@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_label">Oren.ru</string>
     <string name="article_list_title">Новости Оренбурга</string>
     <string name="loading_articles">Загрузка сохраненных новостей...</string>
     <string name="no_articles">Для обновления новостей нажмите кнопку \"Обновить\"</string>
