@@ -70,9 +70,9 @@ public class ListAdapter extends BaseAdapter {
 
         int typeface;
         if (article.isViewed()) {
-            typeface = Typeface.ITALIC;
+            typeface = Typeface.NORMAL;
         } else {
-            typeface = Typeface.BOLD_ITALIC;
+            typeface = Typeface.BOLD;
         }
         ((TextView) view.findViewById(R.id.tvTitle)).setTypeface(null, typeface);
 

@@ -25,7 +25,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:textStyle="italic"
                 android:textColor="#000000"
                 android:singleLine="true"
                 android:ellipsize="end"/>
@@ -35,6 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="0dip"
                 android:layout_weight="2"
+                android:textStyle="italic"
                 android:textSize="11sp"
                 android:textColor="#534551"
                 android:maxLines="2"
@@ -45,6 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+                android:textStyle="italic"
                 android:textSize="13sp"
                 android:textColor="#409028"
                 android:gravity="bottom|right"/>
