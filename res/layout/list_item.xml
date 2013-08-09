@@ -25,13 +25,13 @@
                 android:layout_height="wrap_content"
                 android:maxLines="3"
                 android:textSize="14sp"
-                android:textStyle="italic"
                 android:textColor="#000000"/>
         <TextView
                 android:id="@+id/tvDate"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+                android:textStyle="italic"
                 android:textSize="11sp"
                 android:textColor="#409028"
                 android:gravity="bottom|right"/>
