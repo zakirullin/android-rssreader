@@ -18,7 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class DB implements RssFetcherObserver {
     public static final String DB_NAME = "OrenNewsDB";
-    public static final int DB_VERSION = 18;
+    public static final int DB_VERSION = 19;
     public static final String ARTICLES_TABLE_NAME = "articles";
     public static final int MAX_ARTICLES = 60;
     public static final int ARTICLES_TO_DELETE = 15;
